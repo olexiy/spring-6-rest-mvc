@@ -1,7 +1,9 @@
 package de.olexiy.spring6restmvc.services;
 
+import de.olexiy.spring6restmvc.entities.Beer;
 import de.olexiy.spring6restmvc.mappers.BeerMapper;
 import de.olexiy.spring6restmvc.model.BeerDTO;
+import de.olexiy.spring6restmvc.model.BeerStyle;
 import de.olexiy.spring6restmvc.repositories.BeerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -22,9 +24,27 @@ public class BeerServiceJPA implements BeerService {
     private final BeerMapper beerMapper;
 
     @Override
-    public List<BeerDTO> listBeers() {
-        return beerRepository.findAll()
-                .stream()
+    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean showInventoryOnHand) {
+        List<Beer> beerList;
+
+        if(StringUtils.hasText(beerName) && beerStyle == null){
+            beerList = beerRepository.findAllByBeerNameLikeIgnoreCase("%"+beerName+"%");
+        }
+        else if(!StringUtils.hasText(beerName) && beerStyle != null){
+            beerList = beerRepository.findAllByBeerStyle(beerStyle);
+        }
+        else if(StringUtils.hasText(beerName) && beerStyle != null){
+            beerList = beerRepository.findAllByBeerNameLikeIgnoreCaseAndBeerStyle("%"+beerName+"%", beerStyle);
+        }
+        else {
+            beerList = beerRepository.findAll();
+
+        }
+
+        if(showInventoryOnHand != null && !showInventoryOnHand){
+            beerList.forEach(beer -> beer.setQuantityOnHand(null));
+        }
+        return beerList.stream()
                 .map(beerMapper::beerToBeerDto)
                 .collect(Collectors.toList());
     }

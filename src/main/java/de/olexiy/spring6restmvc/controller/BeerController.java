@@ -1,6 +1,7 @@
 package de.olexiy.spring6restmvc.controller;
 
 import de.olexiy.spring6restmvc.model.BeerDTO;
+import de.olexiy.spring6restmvc.model.BeerStyle;
 import de.olexiy.spring6restmvc.services.BeerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,8 +64,11 @@ public class BeerController {
     }
 
     @GetMapping(value = BEER_PATH)
-    public List<BeerDTO> listBeers(){
-        return beerService.listBeers();
+    public List<BeerDTO> listBeers(
+            @RequestParam(required = false) String beerName,
+            @RequestParam(required = false)BeerStyle beerStyle,
+            @RequestParam(required = false) Boolean showInventoryOnHand){
+        return beerService.listBeers(beerName, beerStyle, showInventoryOnHand);
     }
 
 
