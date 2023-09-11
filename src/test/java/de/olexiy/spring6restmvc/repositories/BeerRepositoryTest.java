@@ -2,15 +2,14 @@ package de.olexiy.spring6restmvc.repositories;
 
 import de.olexiy.spring6restmvc.bootstrap.BootstrapData;
 import de.olexiy.spring6restmvc.entities.Beer;
-import de.olexiy.spring6restmvc.model.BeerCSVRecord;
 import de.olexiy.spring6restmvc.model.BeerStyle;
-import de.olexiy.spring6restmvc.services.BeerCsvService;
 import de.olexiy.spring6restmvc.services.BeerCsvServiceImpl;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,9 +26,9 @@ class BeerRepositoryTest {
 
     @Test
     void testFindBeersByName() throws Exception{
-        List<Beer> foundBeers = beerRepository.findAllByBeerNameLikeIgnoreCase("%IPA%");
+        Page<Beer> foundBeers = beerRepository.findAllByBeerNameLikeIgnoreCase("%IPA%", null );
 
-        assertThat(foundBeers.size()).isEqualTo(336);
+        assertThat(foundBeers.getSize()).isEqualTo(336);
     }
 
     @Test

@@ -2,17 +2,17 @@ package de.olexiy.spring6restmvc.repositories;
 
 import de.olexiy.spring6restmvc.entities.Beer;
 import de.olexiy.spring6restmvc.model.BeerStyle;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface BeerRepository extends JpaRepository<Beer, UUID> {
-    List<Beer> findAllByBeerNameLikeIgnoreCase(String beerName);
+    Page<Beer> findAllByBeerNameLikeIgnoreCase(String beerName, Pageable pageable);
 
-    List<Beer> findAllByBeerStyle(BeerStyle beerStyle);
+    Page<Beer> findAllByBeerStyle(BeerStyle beerStyle, Pageable pageable);
 
-    List<Beer> findAllByBeerNameLikeIgnoreCaseAndBeerStyle(String beerName, BeerStyle beerStyle);
+    Page<Beer> findAllByBeerNameLikeIgnoreCaseAndBeerStyle(String beerName, BeerStyle beerStyle, Pageable pageable);
 }
 

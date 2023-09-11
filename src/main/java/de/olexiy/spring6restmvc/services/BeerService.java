@@ -2,14 +2,15 @@ package de.olexiy.spring6restmvc.services;
 
 import de.olexiy.spring6restmvc.model.BeerDTO;
 import de.olexiy.spring6restmvc.model.BeerStyle;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface BeerService {
 
-    List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Boolean showInventoryOnHand);
+    Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle,
+                            Boolean showInventoryOnHand, Integer pageNumber, Integer pageSize);
 
     Optional<BeerDTO> getBeerById(UUID id);
 
