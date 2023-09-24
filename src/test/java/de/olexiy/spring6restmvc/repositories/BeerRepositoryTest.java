@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,7 +25,7 @@ class BeerRepositoryTest {
 
     @Test
     void testFindBeersByName() throws Exception{
-        Page<Beer> foundBeers = beerRepository.findAllByBeerNameLikeIgnoreCase("%IPA%", null );
+        Page<Beer> foundBeers = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%", null );
 
         assertThat(foundBeers.getSize()).isEqualTo(336);
     }
