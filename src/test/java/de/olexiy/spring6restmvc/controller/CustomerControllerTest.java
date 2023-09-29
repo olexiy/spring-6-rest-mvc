@@ -14,8 +14,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -26,7 +28,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 @WebMvcTest(CustomerController.class)
@@ -57,6 +59,17 @@ class CustomerControllerTest {
     @Captor
     ArgumentCaptor<CustomerDTO> customerArgumentCaptor;
 
+
+    public static final SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor jwtRequestPostProcessor
+            = jwt().jwt(jwt -> {
+        jwt.claims(claims -> {
+                    claims.put("scope", "message-read");
+                    claims.put("scope", "message-write");
+                })
+                .subject("messaging-client")
+                .notBefore(Instant.now().minusSeconds(5l));
+    });
+
     @Test
     void testPatchCustomer() throws Exception {
         CustomerDTO customer = customerServiceImpl.getAllCustomers().get(0);
@@ -65,7 +78,7 @@ class CustomerControllerTest {
         customerMap.put("name", "New Name");
 
         mockMvc.perform(patch( CustomerController.CUSTOMER_PATH_ID, customer.getId())
-                        .with(httpBasic(USER, PASSWORD))
+                        .with(jwtRequestPostProcessor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customerMap)))
                 .andExpect(status().isNoContent());
@@ -85,7 +98,7 @@ class CustomerControllerTest {
         given(customerService.deleteCustomerById(any())).willReturn(true);
 
         mockMvc.perform(delete(CustomerController.CUSTOMER_PATH_ID, customer.getId())
-                        .with(httpBasic(USER, PASSWORD))
+                        .with(jwtRequestPostProcessor)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -102,7 +115,7 @@ class CustomerControllerTest {
                 .build()));
 
         mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID, customer.getId())
-                        .with(httpBasic(USER, PASSWORD))
+                        .with(jwtRequestPostProcessor)
                         .content(objectMapper.writeValueAsString(customer))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -123,7 +136,7 @@ class CustomerControllerTest {
                 .willReturn(customerServiceImpl.getAllCustomers().get(1));
 
         mockMvc.perform(post(CustomerController.CUSTOMER_PATH).contentType(MediaType.APPLICATION_JSON)
-                        .with(httpBasic(USER, PASSWORD))
+                        .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customer)))
                 .andExpect(status().isCreated())
@@ -135,7 +148,7 @@ class CustomerControllerTest {
         given(customerService.getAllCustomers()).willReturn(customerServiceImpl.getAllCustomers());
 
         mockMvc.perform(get(CustomerController.CUSTOMER_PATH)
-                        .with(httpBasic(USER, PASSWORD))
+                        .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -148,7 +161,8 @@ class CustomerControllerTest {
         given(customerService.getCustomerById(any(UUID.class))).willReturn(Optional.empty());
 
         mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, UUID.randomUUID())
-                        .with(httpBasic(USER, PASSWORD)))
+                .with(jwtRequestPostProcessor)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -159,7 +173,7 @@ class CustomerControllerTest {
         given(customerService.getCustomerById(customer.getId())).willReturn(Optional.of(customer));
 
         mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, customer.getId())
-                        .with(httpBasic(USER, PASSWORD))
+                        .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
