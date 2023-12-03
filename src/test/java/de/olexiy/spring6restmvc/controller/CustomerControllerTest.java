@@ -31,11 +31,10 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 @WebMvcTest(CustomerController.class)
 @Import(SpringSecConfig.class)
 class CustomerControllerTest {
-    public static final String USER = "user";
-    public static final String PASSWORD = "password";
 
     @MockBean
     CustomerService customerService;
@@ -61,14 +60,12 @@ class CustomerControllerTest {
 
 
     public static final SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor jwtRequestPostProcessor
-            = jwt().jwt(jwt -> {
-        jwt.claims(claims -> {
-                    claims.put("scope", "message-read");
-                    claims.put("scope", "message-write");
-                })
-                .subject("messaging-client")
-                .notBefore(Instant.now().minusSeconds(5l));
-    });
+            = jwt().jwt(jwt -> jwt.claims(claims -> {
+                        claims.put("scope", "message-read");
+                        claims.put("scope", "message-write");
+                    })
+                    .subject("messaging-client")
+                    .notBefore(Instant.now().minusSeconds(5L)));
 
     @Test
     void testPatchCustomer() throws Exception {
@@ -77,7 +74,7 @@ class CustomerControllerTest {
         Map<String, Object> customerMap = new HashMap<>();
         customerMap.put("name", "New Name");
 
-        mockMvc.perform(patch( CustomerController.CUSTOMER_PATH_ID, customer.getId())
+        mockMvc.perform(patch(CustomerController.CUSTOMER_PATH_ID, customer.getId())
                         .with(jwtRequestPostProcessor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(customerMap)))
@@ -161,7 +158,7 @@ class CustomerControllerTest {
         given(customerService.getCustomerById(any(UUID.class))).willReturn(Optional.empty());
 
         mockMvc.perform(get(CustomerController.CUSTOMER_PATH_ID, UUID.randomUUID())
-                .with(jwtRequestPostProcessor)
+                        .with(jwtRequestPostProcessor)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

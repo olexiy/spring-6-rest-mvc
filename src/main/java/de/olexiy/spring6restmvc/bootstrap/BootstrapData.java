@@ -7,7 +7,6 @@ import de.olexiy.spring6restmvc.model.BeerStyle;
 import de.olexiy.spring6restmvc.repositories.BeerRepository;
 import de.olexiy.spring6restmvc.repositories.CustomerRepository;
 import de.olexiy.spring6restmvc.services.BeerCsvService;
-import de.olexiy.spring6restmvc.services.BeerCsvServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.CommandLineRunner;
@@ -37,7 +36,7 @@ public class BootstrapData implements CommandLineRunner {
     }
 
     private void loadCsvData() throws FileNotFoundException {
-        if(beerRepository.count() < 10 ){
+        if (beerRepository.count() < 10) {
             File file = ResourceUtils.getFile("classpath:csvdata/beers.csv");
             List<BeerCSVRecord> recs = beerCsvService.convertCSV(file);
             recs.forEach(beerCSVRecord -> {
@@ -66,7 +65,7 @@ public class BootstrapData implements CommandLineRunner {
     }
 
     private void loadBeerData() {
-        if (beerRepository.count() == 0){
+        if (beerRepository.count() == 0) {
             Beer beer1 = Beer.builder()
                     .beerName("Galaxy Cat")
                     .beerStyle(BeerStyle.PALE_ALE)

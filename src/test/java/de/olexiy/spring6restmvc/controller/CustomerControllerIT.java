@@ -13,10 +13,13 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @SpringBootTest
 class CustomerControllerIT {
 
@@ -35,24 +38,20 @@ class CustomerControllerIT {
     void deleteByIdFound() {
         Customer customer = customerRepository.findAll().get(0);
 
-        ResponseEntity responseEntity = customerController.deleteCustomerById(customer.getId());
+        ResponseEntity<Void> responseEntity = customerController.deleteCustomerById(customer.getId());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
-
-        assertThat(customerRepository.findById(customer.getId()).isEmpty());
+        assertTrue(customerRepository.findById(customer.getId()).isEmpty());
     }
 
     @Test
     void testDeleteNotFound() {
-        assertThrows(NotFoundException.class, () -> {
-            customerController.deleteCustomerById(UUID.randomUUID());
-        });
+        assertThrows(NotFoundException.class, () -> customerController.deleteCustomerById(UUID.randomUUID()));
     }
 
     @Test
     void testUpdateNotFound() {
-        assertThrows(NotFoundException.class, () -> {
-            customerController.updateCustomerByID(UUID.randomUUID(), CustomerDTO.builder().build());
-        });
+        assertThrows(NotFoundException.class, () -> customerController.updateCustomerByID(UUID.randomUUID(),
+                CustomerDTO.builder().build()));
     }
 
     @Rollback
@@ -66,11 +65,12 @@ class CustomerControllerIT {
         final String customerName = "UPDATED";
         customerDTO.setName(customerName);
 
-        ResponseEntity responseEntity = customerController.updateCustomerByID(customer.getId(), customerDTO);
+        ResponseEntity<Void> responseEntity = customerController.updateCustomerByID(customer.getId(), customerDTO);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
 
-        Customer updatedCustomer = customerRepository.findById(customer.getId()).get();
-        assertThat(updatedCustomer.getName()).isEqualTo(customerName);
+        Optional<Customer> updatedCustomerOptional = customerRepository.findById(customer.getId());
+        assertThat(updatedCustomerOptional).isPresent();
+        assertThat(updatedCustomerOptional.get().getName()).isEqualTo(customerName);
     }
 
     @Rollback
@@ -81,7 +81,7 @@ class CustomerControllerIT {
                 .name("TEST")
                 .build();
 
-        ResponseEntity responseEntity = customerController.handlePost(customerDTO);
+        ResponseEntity<Void> responseEntity = customerController.handlePost(customerDTO);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(201));
         assertThat(responseEntity.getHeaders().getLocation()).isNotNull();
@@ -89,8 +89,8 @@ class CustomerControllerIT {
         String[] locationUUID = responseEntity.getHeaders().getLocation().getPath().split("/");
         UUID savedUUID = UUID.fromString(locationUUID[4]);
 
-        Customer customer = customerRepository.findById(savedUUID).get();
-        assertThat(customer).isNotNull();
+        Optional<Customer> customer = customerRepository.findById(savedUUID);
+        assertThat(customer).isPresent();
     }
 
     @Rollback
@@ -112,9 +112,7 @@ class CustomerControllerIT {
 
     @Test
     void testGetByIdNotFound() {
-        assertThrows(NotFoundException.class, () -> {
-            customerController.getCustomerById(UUID.randomUUID());
-        });
+        assertThrows(NotFoundException.class, () -> customerController.getCustomerById(UUID.randomUUID()));
     }
 
     @Test

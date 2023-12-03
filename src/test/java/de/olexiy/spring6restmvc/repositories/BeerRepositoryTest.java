@@ -24,8 +24,8 @@ class BeerRepositoryTest {
     BeerRepository beerRepository;
 
     @Test
-    void testFindBeersByName() throws Exception{
-        Page<Beer> foundBeers = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%", null );
+    void testFindBeersByName(){
+        Page<Beer> foundBeers = beerRepository.findAllByBeerNameIsLikeIgnoreCase("%IPA%", null);
 
         assertThat(foundBeers.getSize()).isEqualTo(336);
     }
@@ -35,7 +35,8 @@ class BeerRepositoryTest {
 
         assertThrows(ConstraintViolationException.class, () -> {
             Beer savedBeer = beerRepository.save(Beer.builder()
-                    .beerName("My Beer 0123345678901233456789012334567890123345678901233456789012334567890123345678901233456789")
+                    .beerName("My Beer " +
+                            "0123345678901233456789012334567890123345678901233456789012334567890123345678901233456789")
                     .beerStyle(BeerStyle.PALE_ALE)
                     .upc("234234234234")
                     .price(new BigDecimal("11.99"))

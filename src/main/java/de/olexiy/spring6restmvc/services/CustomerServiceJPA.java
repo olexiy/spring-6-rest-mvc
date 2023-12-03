@@ -48,16 +48,14 @@ public class CustomerServiceJPA implements CustomerService {
             foundCustomer.setName(customer.getName());
             atomicReference.set(Optional.of(customerMapper
                     .customerToCustomerDto(customerRepository.save(foundCustomer))));
-        }, () -> {
-            atomicReference.set(Optional.empty());
-        });
+        }, () -> atomicReference.set(Optional.empty()));
 
         return atomicReference.get();
     }
 
     @Override
     public Boolean deleteCustomerById(UUID customerId) {
-        if(customerRepository.existsById(customerId)){
+        if (customerRepository.existsById(customerId)) {
             customerRepository.deleteById(customerId);
             return true;
         }
@@ -69,14 +67,12 @@ public class CustomerServiceJPA implements CustomerService {
         AtomicReference<Optional<CustomerDTO>> atomicReference = new AtomicReference<>();
 
         customerRepository.findById(customerId).ifPresentOrElse(foundCustomer -> {
-            if (StringUtils.hasText(customer.getName())){
+            if (StringUtils.hasText(customer.getName())) {
                 foundCustomer.setName(customer.getName());
             }
             atomicReference.set(Optional.of(customerMapper
                     .customerToCustomerDto(customerRepository.save(foundCustomer))));
-        }, () -> {
-            atomicReference.set(Optional.empty());
-        });
+        }, () -> atomicReference.set(Optional.empty()));
 
         return atomicReference.get();
     }

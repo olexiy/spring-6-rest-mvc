@@ -17,7 +17,6 @@ import org.springframework.util.StringUtils;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 @Primary
@@ -37,11 +36,11 @@ public class BeerServiceJPA implements BeerService {
 
         Page<Beer> beerPage;
 
-        if(StringUtils.hasText(beerName) && beerStyle == null) {
+        if (StringUtils.hasText(beerName) && beerStyle == null) {
             beerPage = listBeersByName(beerName, pageRequest);
-        } else if (!StringUtils.hasText(beerName) && beerStyle != null){
+        } else if (!StringUtils.hasText(beerName) && beerStyle != null) {
             beerPage = listBeersByStyle(beerStyle, pageRequest);
-        } else if (StringUtils.hasText(beerName) && beerStyle != null){
+        } else if (StringUtils.hasText(beerName) && beerStyle != null) {
             beerPage = listBeersByNameAndStyle(beerName, beerStyle, pageRequest);
         } else {
             beerPage = beerRepository.findAll(pageRequest);
@@ -102,9 +101,7 @@ public class BeerServiceJPA implements BeerService {
             foundBeer.setQuantityOnHand(beer.getQuantityOnHand());
             atomicReference.set(Optional.of(beerMapper
                     .beerToBeerDto(beerRepository.save(foundBeer))));
-        }, () -> {
-            atomicReference.set(Optional.empty());
-        });
+        }, () -> atomicReference.set(Optional.empty()));
 
         return atomicReference.get();
     }
@@ -123,26 +120,24 @@ public class BeerServiceJPA implements BeerService {
         AtomicReference<Optional<BeerDTO>> atomicReference = new AtomicReference<>();
 
         beerRepository.findById(beerId).ifPresentOrElse(foundBeer -> {
-            if (StringUtils.hasText(beer.getBeerName())){
+            if (StringUtils.hasText(beer.getBeerName())) {
                 foundBeer.setBeerName(beer.getBeerName());
             }
-            if (beer.getBeerStyle() != null){
+            if (beer.getBeerStyle() != null) {
                 foundBeer.setBeerStyle(beer.getBeerStyle());
             }
-            if (StringUtils.hasText(beer.getUpc())){
+            if (StringUtils.hasText(beer.getUpc())) {
                 foundBeer.setUpc(beer.getUpc());
             }
-            if (beer.getPrice() != null){
+            if (beer.getPrice() != null) {
                 foundBeer.setPrice(beer.getPrice());
             }
-            if (beer.getQuantityOnHand() != null){
+            if (beer.getQuantityOnHand() != null) {
                 foundBeer.setQuantityOnHand(beer.getQuantityOnHand());
             }
             atomicReference.set(Optional.of(beerMapper
                     .beerToBeerDto(beerRepository.save(foundBeer))));
-        }, () -> {
-            atomicReference.set(Optional.empty());
-        });
+        }, () -> atomicReference.set(Optional.empty()));
 
         return atomicReference.get();
     }
@@ -156,7 +151,7 @@ public class BeerServiceJPA implements BeerService {
         return beerRepository.findAllByBeerStyle(beerStyle, pageable);
     }
 
-    public Page<Beer> listBeersByName(String beerName, Pageable pageable){
+    public Page<Beer> listBeersByName(String beerName, Pageable pageable) {
         return beerRepository.findAllByBeerNameIsLikeIgnoreCase("%" + beerName + "%", pageable);
     }
 }

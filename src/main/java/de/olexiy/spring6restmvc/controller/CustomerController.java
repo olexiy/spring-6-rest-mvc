@@ -1,11 +1,8 @@
 package de.olexiy.spring6restmvc.controller;
 
 import de.olexiy.spring6restmvc.model.CustomerDTO;
-import de.olexiy.spring6restmvc.services.BeerService;
 import de.olexiy.spring6restmvc.services.CustomerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

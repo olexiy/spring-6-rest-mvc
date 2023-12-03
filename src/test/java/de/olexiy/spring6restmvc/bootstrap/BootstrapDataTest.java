@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 @DataJpaTest
 @Import(BeerCsvServiceImpl.class)
 class BootstrapDataTest {
@@ -34,7 +35,7 @@ class BootstrapDataTest {
 
     @Test
     void Testrun() throws Exception {
-        bootstrapData.run(null);
+        bootstrapData.run();
 
         assertThat(beerRepository.count()).isEqualTo(2413);
         assertThat(customerRepository.count()).isEqualTo(3);
