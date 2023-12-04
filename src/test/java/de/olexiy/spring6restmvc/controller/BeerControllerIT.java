@@ -88,7 +88,6 @@ class BeerControllerIT {
                 .andExpect(status().isNoContent())
                 .andReturn();
 
-        System.out.println(result2.getResponse().getStatus());
     }
 
     @Test
